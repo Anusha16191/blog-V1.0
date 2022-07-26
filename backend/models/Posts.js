@@ -7,27 +7,26 @@ const postSchema = new mongoose.Schema({
         ref: "users"
     },
 
-    name:{
-        type:String,
-        required:true
+    username: {
+        type: String,
+        required: true
     },
 
-    postimg:{
-        type:String,
-        default:"default.jpg"
+    postimg: {
+        type: String,
     },
 
     title: {
         type: String,
     },
-    description:{
+    description: {
         type: String,
-        required:true
+        required: true
     },
-  
-    timestamp:{
-        type:Date,
-        default:Date.now
+
+    timestamp: {
+        type: Date,
+        default: Date.now
     }
 
 })

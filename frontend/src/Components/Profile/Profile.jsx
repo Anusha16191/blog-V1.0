@@ -4,6 +4,7 @@ import PostContext from '../../context/Post/PostContext'
 import UserContext from '../../context/User/UserContext'
 import UserPost from './UserPost'
 import UserData from './UserData'
+import { useNavigate } from 'react-router-dom'
 const Profile = () => {
 
   const context = useContext(PostContext)
@@ -17,9 +18,14 @@ const Profile = () => {
   const [data, setdata] = useState({ title: '', description: '' })
   const [rerender, setrerender] = useState(0)
 
+  const navigate = useNavigate()
 
 
   useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      navigate("/login")
+      showAlert("Login to use this feature", "danger")
+    }
     fetchuserdata()
     fetchUserPosts()
     //eslint-disable-next-line
@@ -32,34 +38,55 @@ const Profile = () => {
     setdata({ title, description })
   }
 
-  const handleClickDelete = () => {
-    deletePost(pid.id);
+  const handleClickDelete = async () => {
+    const msg = await deletePost(pid.id);
     setTimeout(() => {
       if (rerender === 1)
         setrerender(0)
       else setrerender(1)
     }, 100)
-    showAlert("Post Deleted Successfully", "warning");
+
+    if (msg === "Post Deleted!")
+      showAlert(msg, "warning");
+    else
+      showAlert(msg, "danger");
+
   }
 
+
+  const deletetoken = () => {
+    localStorage.removeItem("token")
+    showAlert("Logged out Successfully", "success")
+    navigate("/")
+  }
 
   const onChange = (e) => {
     setdata({ ...data, [e.target.name]: e.target.value })
   }
 
-  const handleClickUpdate = () => {
-    updatePost(data.title, data.description, pid.id)
+  const handleClickUpdate = async () => {
+    const msg = await updatePost(data.title, data.description, pid.id)
     setTimeout(() => {
       if (rerender === 1)
         setrerender(0)
       else setrerender(1)
     }, 100)
-    showAlert("Post Updated", "warning")
+
+    if (msg === "Post Updated!")
+      showAlert(msg, "warning")
+    else
+      showAlert(msg,"danger")
   }
 
   return (
     <div className={`bg-${mode} text-${mode === "light" ? "dark" : "light"} p-5`} style={{ height: '100%' }}>
-       <div className='container-fluid '>
+
+      <div className='d-flex' style={{ justifyContent: "flex-end" }}>
+        <button className="btn btn-danger" onClick={deletetoken} to="/"><i className="fa-solid fa-user-pen"></i> Logout</button>
+      </div>
+
+
+      <div className='container-fluid '>
         <div className='container'>
           <h2>Profile Settings</h2>
           <div >
@@ -70,7 +97,6 @@ const Profile = () => {
           </div>
         </div>
       </div>
-
 
 
 

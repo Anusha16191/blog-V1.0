@@ -56,17 +56,17 @@ router.put("/updateComment/:commentid", fetchUser, async (req, res) => {
         const userid = req.id
         const { comment } = req.body
 
-        const foundComment = await commentmodel.findOne({ commentid })
+        const foundComment = await commentmodel.findById(commentid)
+        const user = await usermodel.findById(userid)
 
-        if (foundComment.userid != userid) return res.status(401).json({ msg: "illegal operation" })
-
-        const updated = await commentmodel.updateOne({ commentid }, {
+        if (foundComment.username != user.username) return res.status(401).json({ msg: "illegal operation" })
+        const updated = await commentmodel.findByIdAndUpdate(commentid, {
             comment
         })
-
+        
         if (!updated) return res.status(500).json({ msg: "could not update comment" })
 
-        res.json({ msg: "comment updated" })
+        res.json({ msg: "Comment Updated!" })
 
     } catch (e) { res.status(500) }
 })
@@ -76,16 +76,18 @@ router.delete("/deleteComment/:commentid", fetchUser, async (req, res) => {
 
         const userid = req.id
         const commentid = req.params.commentid
+        
+        const user = await usermodel.findById(userid)
+        const foundComment = await commentmodel.findById(commentid)
+        
+        
+        if (foundComment.username != user.username) return res.status(401).json({ msg: "illegal operation" })
 
-        const foundComment = await commentmodel.findOne({ commentid })
-
-        if (foundComment.userid != userid) return res.status(401).json({ msg: "illegal operation" })
-
-        const deleted = await commentmodel.deleteOne({ commentid })
+        const deleted = await commentmodel.findByIdAndDelete(commentid)
 
         if (!deleted) return res.status(500).json({ msg: "could not delete comment" })
 
-        res.json({ msg: "comment deleted" })
+        res.json({ msg: "Comment Deleted!" })
 
     } catch (e) { res.status(500) }
 })

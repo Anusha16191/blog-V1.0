@@ -13,25 +13,34 @@ const Signup = () => {
   const alertcontext = useContext(AlertContext)
   const { signup } = context
   const { showAlert, mode } = alertcontext
+  const [file, setFile] = useState(null)
 
-  const [info, setinfo] = useState({ username: "", password: "", confirmpassword: '' })
+  const [info, setinfo] = useState({ firstname: "", lastname: "", username: "", password: "", confirmpassword: '' })
 
   const onChange = (e) => {
     setinfo({ ...info, [e.target.name]: e.target.value })
   }
 
+  const onFileChange = (e) => {
+    setFile(e.target.files[0])
+  }
 
-  const submit = (e) => {
+
+  const submit = async(e) => {
     if (info.password !== info.confirmpassword) {
-      console.log(info.password + "==" + info.confirmpassword)
       showAlert("password mismatch!", 'danger')
       return 0;
     }
     else {
       e.preventDefault()
-      signup(info.username, info.password)
-      showAlert("User signup registration successfull", "primary")
-      navigate(-1)
+      const msg = await signup(info.firstname, info.lastname, info.username, info.password, file)
+      if(msg==="User already exists"){
+        showAlert(msg, "danger")
+      }
+      else{
+        showAlert(msg,"success")
+        navigate(-1)
+      }
     }
   }
 
@@ -49,10 +58,32 @@ const Signup = () => {
 
           <div className="signupform p-3 ">
 
-            <form onSubmit={submit} autoComplete="off">
+            <form onSubmit={submit} autoComplete="off" encType='multipart/form-data'>
 
               <h1 align="center">Join Us...</h1>
-              <div className="mb-3 mt-5 w-100">
+
+
+
+              <div className="mt-3 w-100 d-flex" style={{ flexDirection: "column", alignItems: "center" }}>
+                <i className="fa-solid fa-circle-user fa-6x"></i>
+                <label htmlFor="formFile" className="form-label"><center>Upload Profile Picture</center></label>
+                <input className="form-control w-50" type="file" id="formFile" onChange={onFileChange} />
+              </div>
+              
+              <div className='name'>
+
+                <div className="mt-3 w-50">
+                  <label htmlFor="firstname" className="form-label">First Name</label>
+                  <input type="text" minLength={3} required className="form-control" id="firstname" onChange={onChange} name="firstname" />
+                </div>
+
+                <div className="mt-3 w-50">
+                  <label htmlFor="lastname" className="form-label">Last Name</label>
+                  <input type="text" minLength={3} required className="form-control" id="lastname" onChange={onChange} name="lastname"/>
+                </div>
+              </div>
+
+              <div className="mb-3 mt-3 w-100">
                 <label htmlFor="username" className="form-label">Username</label>
                 <input type="text" minLength={3} required className="form-control" id="username" onChange={onChange} name="username" aria-describedby="username" />
               </div>

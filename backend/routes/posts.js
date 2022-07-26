@@ -2,6 +2,7 @@ const express = require("express")
 const fetchUser = require("../middleware/fetchUser")
 const postmodel = require("../models/Posts")
 const usermodel = require("../models/User")
+const commentmodel = require("../models/Comments")
 const multer = require("multer")
 const fs = require("fs")
 const router = express.Router()
@@ -9,15 +10,15 @@ const router = express.Router()
 
 
 const storage = multer.diskStorage({
-    destination:(res,file,cb)=>{
-        cb(null,"../../frontend/public/uploads")
+    destination: (res, file, cb) => {
+        cb(null, "uploads")
     },
-    filename:(req,file,cb)=>{
-        cb(null,file.originalname)
+    filename: (req, file, cb) => {
+        cb(null, file.originalname)
     }
 })
 
-const upload = multer({storage})
+const upload = multer({ storage })
 
 router.get("/fetchonepost/:id", async (req, res) => {
     try {
@@ -37,7 +38,6 @@ router.get("/allPosts", async (req, res) => {
 
         const posts = await postmodel.find().sort({ 'timestamp': -1 })
         if (!posts) return res.status(400).json({ msg: "no posts to display" })
-
         return res.json(posts)
     } catch (e) { res.status(500) }
 })
@@ -58,32 +58,27 @@ router.get("/getUserPosts", fetchUser, async (req, res) => {
 })
 
 //create a post in the blog
-router.post("/createPost", fetchUser,upload.single("postimg"), async (req, res) => {
+router.post("/createPost", fetchUser, upload.single("postimg"), async (req, res) => {
     try {
-
+        let image = null
+        if (req.file) {
+            image = fs.readFileSync("uploads/" + req.file.originalname).toString('base64')
+        }
         const { title, description } = req.body
         const userid = req.id
         const user = await usermodel.findById(userid)
-        const name = user.username
+        const username = user.username
         const post = await postmodel.create({
-            userid, name, title, description,postimg:req.file.originalname
+            userid,
+            username,
+            title,
+            description,
+            postimg: image
         })
 
-        const postfetch = await postmodel.find({timestamp:post.timestamp})
-        
-        await postmodel.findByIdAndUpdate(postfetch[0]._id,{postimg:postfetch[0]._id+req.file.originalname})
-        
-        
-        const fname = await postmodel.findById(postfetch[0]._id)
-        console.log("uploads/"+req.file.originalname)
-        fs.rename("../../frontend/public/uploads/"+req.file.originalname,"../../frontend/public/uploads/"+fname.postimg,(err) => {
-            if (err) throw err;
-            console.log('Rename complete!');
-          })
-        
         if (!post) return res.status(400).json({ msg: "This Post Could Not Be Published" })
 
-        return res.json(post)
+        return res.json({msg:"Posted Successfully!"})
     } catch (e) { res.status(500) }
 })
 
@@ -100,8 +95,11 @@ router.delete("/deletePost/:id", fetchUser, async (req, res) => {
 
         const deleted = await postmodel.deleteOne({ _id: postid })
 
-        if (!deleted) return res.json
-        return res.json({ msg: "post deleted" })
+        await commentmodel.deleteMany({postid})
+        
+
+        if (!deleted) return res.json({msg:"not deleted"})
+        return res.json({ msg: "Post Deleted!" })
     } catch (e) { res.status(500) }
 })
 
@@ -124,7 +122,7 @@ router.put("/updatePost/:id", fetchUser, async (req, res) => {
         })
 
         if (!updated) return res.json
-        return res.json({ msg: "post updated" })
+        return res.json({ msg: "Post Updated!" })
     } catch (e) { res.status(500) }
 })
 

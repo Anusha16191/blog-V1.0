@@ -20,10 +20,7 @@ const NavBar = (props) => {
     }, [props.token])
 
 
-    const deletetoken = () => {
-        localStorage.removeItem("token")
-        showAlert("Logged out Successfully", "success")
-    }
+
 
     return (
         <nav className={`navbar navbar-${mode}`} style={{ backgroundColor: mode === "light" ? "darkorange" : "#212529" }} >
@@ -55,7 +52,6 @@ const NavBar = (props) => {
                         <div className='d-flex'>
                             <Link className="navbar-brand" to="/write"><i className="fa-solid fa-feather"></i><span> Write</span></Link>
                             <Link className="navbar-brand" to="/feed" ><i className="fa-solid fa-book-open"></i><span> Feed</span></Link>
-                            <Link className="navbar-brand" to="/profile"><i className="fa-solid fa-address-card"></i><span> Profile</span></Link>
                         </div>
                     }
                 </div>
@@ -67,10 +63,11 @@ const NavBar = (props) => {
                         <Link className="navbar-brand" to="/login"><i className="fa-solid fa-user-pen"></i> Login</Link>
                     </>}
 
-                    {props.token && <>
-                        <span className="navbar-brand" style={{ color: "white" }}>Welcome, <i className="fa-solid fa-circle-user"></i> {userdata.username}</span>
-                        <Link className="navbar-brand" onClick={deletetoken} to="/"><i className="fa-solid fa-user-pen"></i> Logout</Link>
-                    </>
+                    {props.token && <Link to="/profile" className='navbar-brand'>
+                            {userdata.profilepic && <img src={`data:image/jpeg;base64,${userdata.profilepic}`} alt="profilepic" style={{ borderRadius: "50%", height: "36px", width: "36px", border: "2px solid black" }} />}
+                            {!userdata.profilepic && <i className="fa-solid fa-circle-user"></i>}
+                            <span style={{ margin: "10%" }}>{userdata.username}</span>
+                    </Link>
                     }
                 </div>
             </div>

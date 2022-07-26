@@ -3,32 +3,37 @@ import { useContext } from 'react'
 import { useState } from 'react'
 import { useEffect } from 'react'
 import AlertContext from '../../../context/Alert/AlertContext'
+import UserContext from '../../../context/User/UserContext'
 
 const CommentSection = () => {
 
     const [comments, setcomments] = useState([])
+    const [updateComment, setupdateComment] = useState('')
     const [rerender, setrerender] = useState(0)
+
     const [postcomment, setpostcomment] = useState('')
     const context = useContext(AlertContext)
-    const {mode,showAlert} =context
+    const usercontext = useContext(UserContext)
+    const { userdata } = usercontext
+    const { mode, showAlert } = context
 
 
-    const postComment=async()=>{
-        
+    const postComment = async () => {
+
         const postid = localStorage.getItem("postid")
-        const response = await fetch(`http://localhost:5000/api/comments/postComment/${postid}`,{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json",
-                "auth-token":localStorage.getItem("token")
+        const response = await fetch(`http://localhost:5000/api/comments/postComment/${postid}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "auth-token": localStorage.getItem("token")
             },
-            body:JSON.stringify({comment:postcomment})
+            body: JSON.stringify({ comment: postcomment })
         })
 
         const res = await response.json()
         return res
-        
-        
+
+
     }
 
     const fetchComments = async () => {
@@ -44,41 +49,99 @@ const CommentSection = () => {
         setcomments(await response.json())
 
         setTimeout(() => {
-            if(setrerender===0)
-            setrerender(rerender+1)
+            if (setrerender === 0)
+                setrerender(rerender + 1)
         }, 200)
     }
 
 
-    const onChange=(e)=>{
+    const onChange = (e) => {
         setpostcomment(e.target.value)
     }
 
-    const onSubmit=async (e)=>{
+    const onUpdateChange = (e) => {
+        setupdateComment(e.target.value)
+    }
+
+    const handleClickUpdate = async () => {
+        const response = await fetch(`http://localhost:5000/api/comments/updateComment/${localStorage.getItem("cid")}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "auth-token": localStorage.getItem("token")
+            },
+            body:JSON.stringify({comment:updateComment})
+        })
+
+        const json = await response.json()
+
+
+
+        setTimeout(() => {
+            if (rerender === 1)
+                setrerender(0)
+            else setrerender(1)
+        }, 100)
+
+        if (json.msg === "Comment Updated!")
+            showAlert(json.msg, "warning")
+        else
+            showAlert(json.msg, "danger")
+    }
+
+
+
+
+
+    const handleClickDelete = async () => {
+        const response = await fetch(`http://localhost:5000/api/comments/deleteComment/${localStorage.getItem("cid")}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "auth-token": localStorage.getItem("token")
+            }
+        })
+
+        const json = await response.json()
+
+        setTimeout(() => {
+            if (rerender === 1)
+                setrerender(0)
+            else setrerender(1)
+        }, 100)
+
+        if (json.msg === "Comment Deleted!")
+            showAlert(json.msg, "warning");
+        else
+            showAlert(json.msg, "danger");
+
+    }
+
+
+    const onSubmit = async (e) => {
         e.preventDefault()
         const res = await postComment()
-        console.log(res.msg)
-        if(res.msg==="Negative comment"){
+        if (res.msg === "Negative comment") {
 
-            showAlert(res.msg,"danger")
+            showAlert(res.msg, "danger")
         }
-        else{
-            showAlert("Comment Posted!","primary")
+        else {
+            showAlert("Comment Posted!", "primary")
         }
-        
+
         setTimeout(() => {
-            setrerender(rerender+1)
+            setrerender(rerender + 1)
         }, 200)
-        
+
     }
 
     useEffect(() => {
         fetchComments()
-        console.log("rerender")
         // eslint-disable-next-line
     }, [rerender])
 
     return (
+
         <div>
             {comments.length === 0 && <h3>No comments for this post</h3>}
             {comments.length !== 0 && <div className={`card bg-${mode}`} style={{ height: "50vh", overflowY: "scroll" }}>
@@ -86,16 +149,23 @@ const CommentSection = () => {
                     {comments.map((Element) => {
                         return (
                             <div key={Element._id}>
-                                <li className={`list-group-item bg-${mode==="dark"?"secondary":"white"} text-${mode==="dark"?"white":"black"}`} >
-                                    <div className="d-flex" style={{ justifyContent: "space-between", alignItems: "center" }}>
+                                <li className={`list-group-item bg-${mode === "dark" ? "secondary" : "white"} text-${mode === "dark" ? "white" : "black"}`} >
+                                    <div className="d-flex" style={{ justifyContent: "space-between", }}>
                                         <div>
 
-                                            <i className="fa-solid fa-circle-user"></i>
+                                            {!userdata.profilepic && <i className="fa-solid fa-circle-user"></i>}
+                                            {userdata.profilepic && <img src={`data:image/jpeg;base64,${userdata.profilepic}`} alt="profilepic" height="36px" width="36px"></img>}
                                             <b className="mx-2">{Element.username}</b>
                                         </div>
-                                        <p>{new Date(Element.timestamp).toLocaleString("en-In", { timeZone: "Asia/Kolkata" })}</p>
+                                        <p className='d-flex'>{new Date(Element.timestamp).toLocaleString("en-In", { timeZone: "Asia/Kolkata" })}
+                                            {userdata.username === Element.username && <div>
+                                                <i className="fa-solid fa-trash-can mx-3" style={{ color: "red", cursor: "pointer" }} data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={() => { localStorage.setItem("cid", Element._id) }}></i>
+                                                <i className="fa-solid fa-pen-to-square mx-3" style={{ color: "green", cursor: "pointer" }} data-bs-toggle="modal" data-bs-target="#exampleModal2" onClick={() => { localStorage.setItem("cid", Element._id) }}></i>
+                                            </div>}
+                                        </p>
                                     </div>
                                     {Element.comment}
+
                                 </li>
 
 
@@ -104,23 +174,81 @@ const CommentSection = () => {
                         )
                     })}
                 </ul>
-                
+
             </div>}
 
-            {!localStorage.getItem("token")&&<h4>Login to post comments</h4>}
-            {localStorage.getItem("token")&&<form onSubmit={onSubmit} className='mt-3'>
+            {!localStorage.getItem("token") && <h4>Login to post comments</h4>}
+            {localStorage.getItem("token") && <form onSubmit={onSubmit} className='mt-3'>
                 <label htmlFor="comment" className="form-label">Post your comment</label>
                 <div className='d-flex'>
 
-                    <input  autoComplete="off" type="text" id="comment" className="form-control" onChange={onChange} aria-describedby="passwordHelpBlock" />
+                    <input autoComplete="off" type="text" id="comment" className="form-control" onChange={onChange} aria-describedby="passwordHelpBlock" />
                     <button className=' mx-2 btn btn-primary'>Send<i class="fa-solid fa-paper-plane"></i></button>
                 </div>
 
-                <div id="passwordHelpBlock" className={`form-text text-${mode==="dark"?"white":"black"}`}>
+                <div id="passwordHelpBlock" className={`form-text text-${mode === "dark" ? "white" : "black"}`}>
                     Please Keep The Comment Section Clean and Professional
                 </div>
             </form>}
+
+
+
+
+
+
+
+
+            <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div className="modal-dialog">
+                    <div className={`modal-content  bg-${mode}`}>
+                        <div className={`modal-header bg-danger`}>
+                            <h5 className="modal-title" id="exampleModalLabel">DELETE Comment?</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className={`modal-body bg-${mode}`}>
+                            Are you sure you want to delete?
+                        </div>
+                        <div className={`modal-footer bg-${mode}`}>
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" className="btn btn-danger" onClick={handleClickDelete} data-bs-dismiss="modal">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div className="modal fade " id="exampleModal2" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div className="modal-dialog">
+                    <div className={`modal-content  bg-${mode}`}>
+                        <div className={`modal-header  bg-success`}>
+                            <h5 className="modal-title" id="exampleModalLabel">Update Comment</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className={`modal-body bg-${mode}`}>
+                            <div className="form-group">
+                                <label htmlFor="title">Comment</label>
+                                <input onChange={onUpdateChange} type="text" className="form-control" name="updateComment" id="updateComment" aria-describedby="updateComment" value={updateComment} />
+                            </div>
+                            <div className={`modal-footer  bg-${mode}`}>
+                                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" className="btn btn-success" onClick={handleClickUpdate} data-bs-dismiss="modal">Update</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
         </div>
+
+
+
+
+
+
+
+
     )
 }
 

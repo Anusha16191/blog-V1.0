@@ -7,6 +7,7 @@ const UserStates = (props) => {
 
     const [userdata, setUserdata] = useState([])
     
+    const [postuserdata, setpostuserdata] = useState([])
 
     const fetchuserdata = async () => {
         const response = await fetch("http://localhost:5000/api/auth/fetch", {
@@ -20,19 +21,39 @@ const UserStates = (props) => {
 
     }
 
-    const signup = async (username, password) => {
+    
+    const fetchuserdatabyusername = async (username) => {
+        console.log(username)
+        const response = await fetch(`http://localhost:5000/api/auth/fetchbyusername/${username}`, {
+            method: "GET",
+            headers: {
+                "Content-Type":"application/json"
+            }
+        })
 
-        const data = JSON.stringify({ username, password })
+        setpostuserdata(await response.json())
+
+
+    }
+
+    const signup = async (firstname,lastname,username, password,file) => {
+
+        const data = new FormData()
+
+        data.append("firstname",firstname)
+        data.append("lastname",lastname)
+        data.append("username",username)
+        data.append("password",password)
+        data.append("profilepic",file)
 
 
         const response = await fetch("http://localhost:5000/api/auth/signup", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
             body: data
         })
-        await response.json()
+        const json = await response.json()
+
+        return(await json.msg)
     }
 
     const login = async (username, password) => {
@@ -51,10 +72,11 @@ const UserStates = (props) => {
         if (res.token) {
             localStorage.setItem("token", res.token)
         }
+
     }
 
     return (
-        <UserContext.Provider value={{ signup, login, fetchuserdata, userdata}}>
+        <UserContext.Provider value={{ signup, login, fetchuserdata, userdata,fetchuserdatabyusername,postuserdata}}>
             {props.children}
         </UserContext.Provider>
     )

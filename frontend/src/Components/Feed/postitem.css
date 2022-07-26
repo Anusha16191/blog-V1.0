@@ -1,0 +1,20 @@
+.postitem .card {
+    box-shadow: rgb(38, 57, 77) 0px 20px 30px -10p;
+
+}
+
+.postitem .card-header{
+    justify-content: space-between;
+}
+
+.postitem .card-body {
+    justify-content: space-between;
+    flex-wrap: "wrap";
+}
+
+
+.postitem .user {
+    
+    width:fit-content;
+    font-weight: bold;
+}

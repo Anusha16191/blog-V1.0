@@ -3,13 +3,29 @@ const router = express.Router()
 const usermodel = require("../models/User")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
+const fs = require("fs")
+const multer = require("multer")
 const fetchUser = require("../middleware/fetchUser")
 
 
-router.post("/signup", async (req, res) => {
-    try {
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "uploads/profilepics")
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.originalname)
+    }
+})
 
-        const { username, password } = req.body
+const upload = multer({ storage })
+
+router.post("/signup", upload.single("profilepic"), async (req, res) => {
+    try {
+        let image = null
+        if (req.file) {
+            image = fs.readFileSync("uploads/profilepics/" + req.file.originalname).toString('base64')
+        }
+        const { firstname,lastname,username, password } = req.body
 
         const search = await usermodel.findOne({ username })
         if (search) return res.status(400).json({ msg: "User already exists" })
@@ -18,7 +34,7 @@ router.post("/signup", async (req, res) => {
         const hashed = await bcrypt.hash(password, salt)
 
         const user = await usermodel.create({
-            username, password: hashed
+            profilepic: image, username, password: hashed,firstname,lastname
         })
 
         if (!user) return res.status(400).json({ msg: "User Not Created" })
@@ -60,15 +76,16 @@ router.get("/fetch", fetchUser, async (req, res) => {
     } catch (e) { res.status(500) }
 })
 
-router.post("/fetchbyid", async (req, res) => {
+router.get("/fetchbyusername/:username",async (req, res) => {
     try {
 
-        const user = await usermodel.findById(req.body.id)
+        const user = await usermodel.findOne({username:req.params.username})
         if (!user) return res.status(400).json({ msg: "user not found" })
 
         return res.json(user)
     } catch (e) { res.status(500) }
 })
+
 
 
 module.exports = router

@@ -1,6 +1,7 @@
 import React from 'react'
 import { useState } from 'react'
 import { useEffect } from 'react'
+import {Link} from 'react-router-dom'
 
 const UserPost = (props) => {
 
@@ -29,6 +30,9 @@ const UserPost = (props) => {
                 </div>
                 <div>
                     {props.description}
+                </div>
+                <div className='mt-1'>
+                    <Link onClick={() => { localStorage.setItem("postid", props.id) }} to="/feed/post"><button type="button" class="btn btn-primary">Go To Post</button></Link>
                 </div>
 
             </div>

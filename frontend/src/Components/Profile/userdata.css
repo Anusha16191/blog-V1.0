@@ -1,18 +1,18 @@
 .userdata .card{
-    width:38%;
+    width:45%;
 }
 .userdata .card-body{
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     width: 100%;
-    justify-content: space-around;
+    justify-content: space-evenly;
 }
 .userdata .info{
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: max-content;
+    width: 50%;
     
 }
