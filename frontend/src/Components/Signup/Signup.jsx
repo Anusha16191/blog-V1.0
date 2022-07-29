@@ -72,34 +72,34 @@ const Signup = () => {
               
               <div className='name'>
 
-                <div className="mt-3 w-50">
+                <div className="mt-2 w-50">
                   <label htmlFor="firstname" className="form-label">First Name</label>
                   <input type="text" minLength={3} required className="form-control" id="firstname" onChange={onChange} name="firstname" />
                 </div>
 
-                <div className="mt-3 w-50">
+                <div className="mt-2 w-50">
                   <label htmlFor="lastname" className="form-label">Last Name</label>
                   <input type="text" minLength={3} required className="form-control" id="lastname" onChange={onChange} name="lastname"/>
                 </div>
               </div>
 
-              <div className="mb-3 mt-3 w-100">
+              <div className="mb-2 mt-3 w-100">
                 <label htmlFor="username" className="form-label">Username</label>
                 <input type="text" minLength={3} required className="form-control" id="username" onChange={onChange} name="username" aria-describedby="username" />
               </div>
 
-              <div className="mb-3 w-100">
+              <div className="mb-2 w-100">
                 <label htmlFor="password" className="form-label">Password</label>
                 <input type="password" minLength={8} required className="form-control" name="password" onChange={onChange} id="password" />
               </div>
 
-              <div className="mb-5 w-100">
+              <div className="w-100 my-3">
                 <label htmlFor="confirmpassword" className="form-label">Confirm Password</label>
                 <input type="password" minLength={8} required className="form-control" name="confirmpassword" onChange={onChange} id="confirmpassword" />
               </div>
 
 
-              <button type="submit" className="btn w-50 p-2 ">signup</button>
+              <button type="submit" className="btn w-50 p-2 ">Sign Up</button>
 
             </form>
           </div>

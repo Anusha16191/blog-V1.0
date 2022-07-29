@@ -32,7 +32,7 @@ const UserPost = (props) => {
                     {props.description}
                 </div>
                 <div className='mt-1'>
-                    <Link onClick={() => { localStorage.setItem("postid", props.id) }} to="/feed/post"><button type="button" class="btn btn-primary">Go To Post</button></Link>
+                    <Link onClick={() => { localStorage.setItem("postid", props.id) }} to="/feed/post"><button type="button" class="btn" style={{backgroundColor:"darkorange"}}>Go To Post</button></Link>
                 </div>
 
             </div>

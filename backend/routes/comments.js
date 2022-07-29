@@ -61,7 +61,7 @@ router.put("/updateComment/:commentid", fetchUser, async (req, res) => {
 
         if (foundComment.username != user.username) return res.status(401).json({ msg: "illegal operation" })
         const updated = await commentmodel.findByIdAndUpdate(commentid, {
-            comment
+            comment,timestamp:Date.now()
         })
         
         if (!updated) return res.status(500).json({ msg: "could not update comment" })

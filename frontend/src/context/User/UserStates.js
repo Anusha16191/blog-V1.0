@@ -7,7 +7,6 @@ const UserStates = (props) => {
 
     const [userdata, setUserdata] = useState([])
     
-    const [postuserdata, setpostuserdata] = useState([])
 
     const fetchuserdata = async () => {
         const response = await fetch("http://localhost:5000/api/auth/fetch", {
@@ -21,20 +20,7 @@ const UserStates = (props) => {
 
     }
 
-    
-    const fetchuserdatabyusername = async (username) => {
-        console.log(username)
-        const response = await fetch(`http://localhost:5000/api/auth/fetchbyusername/${username}`, {
-            method: "GET",
-            headers: {
-                "Content-Type":"application/json"
-            }
-        })
-
-        setpostuserdata(await response.json())
-
-
-    }
+   
 
     const signup = async (firstname,lastname,username, password,file) => {
 
@@ -76,7 +62,7 @@ const UserStates = (props) => {
     }
 
     return (
-        <UserContext.Provider value={{ signup, login, fetchuserdata, userdata,fetchuserdatabyusername,postuserdata}}>
+        <UserContext.Provider value={{ signup, login, fetchuserdata, userdata,}}>
             {props.children}
         </UserContext.Provider>
     )

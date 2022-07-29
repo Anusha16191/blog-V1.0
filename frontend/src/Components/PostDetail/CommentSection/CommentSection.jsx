@@ -3,7 +3,7 @@ import { useContext } from 'react'
 import { useState } from 'react'
 import { useEffect } from 'react'
 import AlertContext from '../../../context/Alert/AlertContext'
-import UserContext from '../../../context/User/UserContext'
+import CommentItem from './CommentItem'
 
 const CommentSection = () => {
 
@@ -13,8 +13,7 @@ const CommentSection = () => {
 
     const [postcomment, setpostcomment] = useState('')
     const context = useContext(AlertContext)
-    const usercontext = useContext(UserContext)
-    const { userdata } = usercontext
+    
     const { mode, showAlert } = context
 
 
@@ -70,7 +69,7 @@ const CommentSection = () => {
                 "Content-Type": "application/json",
                 "auth-token": localStorage.getItem("token")
             },
-            body:JSON.stringify({comment:updateComment})
+            body: JSON.stringify({ comment: updateComment })
         })
 
         const json = await response.json()
@@ -144,37 +143,18 @@ const CommentSection = () => {
 
         <div>
             {comments.length === 0 && <h3>No comments for this post</h3>}
-            {comments.length !== 0 && <div className={`card bg-${mode}`} style={{ height: "50vh", overflowY: "scroll" }}>
+            {comments.length !== 0 && <div className={`card bg-${mode}`} style={{ height: "50vh", overflowY: "scroll", boxShadow: "none" }}>
                 <ul className="list-group list-group-flush">
                     {comments.map((Element) => {
                         return (
                             <div key={Element._id}>
                                 <li className={`list-group-item bg-${mode === "dark" ? "secondary" : "white"} text-${mode === "dark" ? "white" : "black"}`} >
-                                    <div className="d-flex" style={{ justifyContent: "space-between", }}>
-                                        <div>
-
-                                            {!userdata.profilepic && <i className="fa-solid fa-circle-user"></i>}
-                                            {userdata.profilepic && <img src={`data:image/jpeg;base64,${userdata.profilepic}`} alt="profilepic" height="36px" width="36px"></img>}
-                                            <b className="mx-2">{Element.username}</b>
-                                        </div>
-                                        <p className='d-flex'>{new Date(Element.timestamp).toLocaleString("en-In", { timeZone: "Asia/Kolkata" })}
-                                            {userdata.username === Element.username && <div>
-                                                <i className="fa-solid fa-trash-can mx-3" style={{ color: "red", cursor: "pointer" }} data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={() => { localStorage.setItem("cid", Element._id) }}></i>
-                                                <i className="fa-solid fa-pen-to-square mx-3" style={{ color: "green", cursor: "pointer" }} data-bs-toggle="modal" data-bs-target="#exampleModal2" onClick={() => { localStorage.setItem("cid", Element._id) }}></i>
-                                            </div>}
-                                        </p>
-                                    </div>
-                                    {Element.comment}
-
+                                   <CommentItem id={Element._id} username={Element.username} timestamp = {Element.timestamp} comment={Element.comment}/>
                                 </li>
-
-
                             </div>
-
                         )
                     })}
                 </ul>
-
             </div>}
 
             {!localStorage.getItem("token") && <h4>Login to post comments</h4>}
@@ -183,7 +163,7 @@ const CommentSection = () => {
                 <div className='d-flex'>
 
                     <input autoComplete="off" type="text" id="comment" className="form-control" onChange={onChange} aria-describedby="passwordHelpBlock" />
-                    <button className=' mx-2 btn btn-primary'>Send<i class="fa-solid fa-paper-plane"></i></button>
+                    <button className=' mx-2 btn' style={{backgroundColor:"darkorange"}}>Send<i className="fa-solid fa-paper-plane"></i></button>
                 </div>
 
                 <div id="passwordHelpBlock" className={`form-text text-${mode === "dark" ? "white" : "black"}`}>

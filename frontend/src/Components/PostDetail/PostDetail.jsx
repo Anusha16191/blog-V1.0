@@ -29,10 +29,10 @@ const PostDetail = () => {
         // eslint-disable-next-line
     }, [rerender])
 
-
     return (
+        
         <div className="postdetail">
-            <Post title={post.title} name={post.name} postimg={post.postimg} timestamp={post.timestamp} description={post.description}/>
+            <Post title={post.title} username={post.username} postimg={post.postimg} timestamp={post.timestamp} description={post.description}/>
         </div>
     )
 }
